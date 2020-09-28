@@ -119,4 +119,17 @@ async function findByIdAndUpdateCourse(id) {
   console.log(course);
 }
 
-findByIdAndUpdateCourse('5f721e5de4bb42127c79ee7c');
+// findByIdAndUpdateCourse('5f721e5de4bb42127c79ee7c');
+
+// Delete one document
+// Delete more than one document
+
+async function removeCourse(id) {
+  // const result = await Course.deleteOne({ _id: id });
+  // const result = await Course.deleteMany({ _id: id });
+  const course = await Course.findByIdAndRemove(id);
+  // console.log(result);
+  console.log(course);
+}
+
+removeCourse('5f721e5de4bb42127c79ee7c');
