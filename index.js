@@ -28,6 +28,9 @@ async function createCourse() {
 }
 
 async function getCourses() {
+  const pageNumber = 2;
+  const pageSize = 10;
+
   // eq (equal)
   // ne (not equal)
   // gt (greater than)
@@ -46,10 +49,19 @@ async function getCourses() {
     // .find()
     // .or([{ author: 'Mislav' }, { isPublished: true }])
     // .and([{ author: 'Mislav' }, { isPublished: true }])
+    // Starts with Mislav
+    // .find({ author: /^Mislav/ })
+    // Ends with Srečec
+    // .find({ author: /Srečec$/i }) // i is for case insensitivity
+    // Contains Mislav
+    // .find({ author: /.*Mislav.*/i }) // i is for case insensitivity
     .find({ author: 'Mislav', isPublished: true })
-    .limit(10)
+    .skip((pageNumber - 1) * pageSize) //pagination - skip together with limit gives us the documents at the given page
+    .limit(pageSize)
+    // .limit(10)
     .sort({ name: 1 })
-    .select({ name: 1, tags: 1 });
+    // .select({ name: 1, tags: 1 });
+    .count(); // Returns the number of documents
   console.log(courses);
 }
 
