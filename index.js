@@ -69,23 +69,54 @@ async function getCourses() {
 
 // createCourse();
 
-// Query first approach
+// // Query first approach
+// async function updateCourse(id) {
+//   const course = await Course.findById(id);
+//   if (!course) return;
+
+//   // First approach
+//   course.isPublished = true;
+//   course.author = 'Another Author';
+
+//   const result = await course.save();
+//   console.log(result);
+
+//   // Second approach
+//   // course.set({
+//   //   isPublished: true,
+//   //   author: 'Another Author',
+//   // });
+// }
+
+// Update first approach
 async function updateCourse(id) {
-  const course = await Course.findById(id);
-  if (!course) return;
+  const result = await Course.update(
+    { _id: id },
+    {
+      $set: {
+        author: 'Mosh',
+        isPublished: false,
+      },
+    }
+  );
 
-  // First approach
-  course.isPublished = true;
-  course.author = 'Another Author';
-
-  const result = await course.save();
   console.log(result);
-
-  // Second approach
-  // course.set({
-  //   isPublished: true,
-  //   author: 'Another Author',
-  // });
 }
 
-updateCourse('5f721e5de4bb42127c79ee7c');
+// updateCourse('5f721e5de4bb42127c79ee7c');
+
+async function findByIdAndUpdateCourse(id) {
+  const course = await Course.findByIdAndUpdate(
+    id,
+    {
+      $set: {
+        author: 'Jason',
+        isPublished: false,
+      },
+    },
+    { new: true } // To return the updated document instead of an old document
+  );
+  console.log(course);
+}
+
+findByIdAndUpdateCourse('5f721e5de4bb42127c79ee7c');
