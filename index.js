@@ -6,11 +6,48 @@ mongoose
   .catch((err) => console.error('Could not connect to MongoDB...', err));
 
 const courseSchema = new mongoose.Schema({
-  name: String,
+  name: {
+    type: String,
+    required: true,
+    minlength: 5,
+    maxlength: 255,
+    //  match: /pattern/
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['web', 'mobile', 'network'],
+    lowercase: true,
+    // uppercase: true,
+    trim: true,
+  },
   author: String,
-  tags: [String],
+  tags: {
+    type: Array,
+    validate: {
+      isAsync: true,
+      validator: function (v, callback) {
+        setTimeout(() => {
+          // Do some async work
+          const result = v && v.length > 0;
+          callback(result);
+        }, 4000);
+      },
+      message: 'A course should have at least one tag',
+    },
+  },
   date: { type: Date, default: Date.now },
   isPublished: Boolean,
+  price: {
+    type: Number,
+    required: function () {
+      return this.isPublished;
+    },
+    min: 10,
+    max: 200,
+    get: (v) => Math.round(v),
+    set: (v) => Math.round(v),
+  },
 });
 
 const Course = mongoose.model('Course', courseSchema);
@@ -18,13 +55,18 @@ const Course = mongoose.model('Course', courseSchema);
 async function createCourse() {
   const course = new Course({
     name: 'Angular Course',
+    category: 'Web',
     author: 'Mislav',
-    tags: ['angular', 'frontend'],
+    tags: ['frontend'],
     isPublished: true,
+    price: 15.8,
   });
-
-  const result = await course.save();
-  console.log(result);
+  try {
+    const result = await course.save();
+    console.log(result);
+  } catch (ex) {
+    for (field in ex.errors) console.log(ex.errors[field].message);
+  }
 }
 
 async function getCourses() {
@@ -55,17 +97,18 @@ async function getCourses() {
     // .find({ author: /Srečec$/i }) // i is for case insensitivity
     // Contains Mislav
     // .find({ author: /.*Mislav.*/i }) // i is for case insensitivity
-    .find({ author: 'Mislav', isPublished: true })
-    .skip((pageNumber - 1) * pageSize) //pagination - skip together with limit gives us the documents at the given page
-    .limit(pageSize)
+    // .find({ author: 'Mislav', isPublished: true })
+    .find({ _id: '5f74e9e21337da17681a5abc' })
+    // .skip((pageNumber - 1) * pageSize) //pagination - skip together with limit gives us the documents at the given page
+    // .limit(pageSize)
     // .limit(10)
     .sort({ name: 1 })
-    // .select({ name: 1, tags: 1 });
-    .count(); // Returns the number of documents
-  console.log(courses);
+    .select({ name: 1, tags: 1, price: 1 });
+  // .count(); // Returns the number of documents
+  console.log(courses[0].price);
 }
 
-// getCourses();
+getCourses();
 
 // createCourse();
 
@@ -132,4 +175,6 @@ async function removeCourse(id) {
   console.log(course);
 }
 
-removeCourse('5f721e5de4bb42127c79ee7c');
+// removeCourse('5f721e5de4bb42127c79ee7c');
+
+// createCourse();
